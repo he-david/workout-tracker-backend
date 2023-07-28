@@ -1,16 +1,18 @@
-import fastify from 'fastify';
+import express from 'express';
 
-const server = fastify({ logger: true });
+import { connectToDatabase } from './services/database.service';
+import { workoutRouter } from './routes/workout.router';
 
-server.get('/', async () => {
-  server.log.info('Incoming request at /');
-  return 'Hello World!';
-});
+const app = express();
 
-server.listen({ port: 8080 }, (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-  console.log('Server started at ', address);
-});
+connectToDatabase()
+  .then(() => {
+    app.use('/workout', workoutRouter);
+
+    app.listen(3000, () => {
+      console.log('Application is listening on port 3000');
+    });
+  })
+  .catch((err: Error) => {
+    console.log('An error occurred', err.message);
+  });
